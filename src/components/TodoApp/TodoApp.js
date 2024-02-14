@@ -5,7 +5,7 @@ function TodoApp() {
     const [todos, setTodos] = useState([]);
     const [newTodo, setNewTodo] = useState('');
     const [updatedTodo, setUpdatedTodo] = useState('');
-    const [editTodoId, setEditTodoId] = useState(null); // State variable to store the ID of the todo item being edited
+    const [editTodoId, setEditTodoId] = useState(null);
 
     useEffect(() => {
         fetchTodos();
@@ -30,7 +30,6 @@ function TodoApp() {
                 task: newTodo,
                 completed: false,
             });
-            console.log(response.data);
             setTodos([...todos, response.data]);
             setNewTodo('');
         } catch (error) {
@@ -71,31 +70,28 @@ function TodoApp() {
         try {
             await axios.put(`http://localhost:8080/api/todos/${id}`, {
                 task: updatedTask,
-                completed: false, // You may adjust this based on your application logic
+                completed: false,
             });
 
             const updatedTodos = todos.map(todo => {
                 if (todo.id === id) {
-                    return {
-                        ...todo,
-                        task: updatedTask
-                    };
+                    return { ...todo, task: updatedTask };
                 }
                 return todo;
             });
 
             setTodos(updatedTodos);
             setUpdatedTodo('');
-            setEditTodoId(null); // Reset the editTodoId state after updating
+            setEditTodoId(null);
         } catch (error) {
             console.error('Error updating todo:', error);
         }
     };
 
     const startEditTodo = (id) => {
-        setEditTodoId(id); // Set the ID of the todo item being edited
+        setEditTodoId(id);
         const todoToEdit = todos.find(todo => todo.id === id);
-        setUpdatedTodo(todoToEdit.task); // Set the updatedTodo state to the current task content
+        setUpdatedTodo(todoToEdit.task);
     };
 
     return (
@@ -108,23 +104,34 @@ function TodoApp() {
             <h1>Update Todo</h1>
             <div>
                 <input type="text" placeholder="Enter updated todo" value={updatedTodo} onChange={handleUpdateInputChange} />
-                {/* Conditionally render the button based on whether there's an editTodoId */}
-                {editTodoId !== null ? (
+                {editTodoId !== null && (
                     <button onClick={() => updateTodo(editTodoId, updatedTodo)}>Update Todo</button>
-                ) : null}
+                )}
             </div>
 
             <ul>
                 {todos.map((todo) => (
-                    <li key={todo.id} onClick={() => toggleTodo(todo.id)} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
-                        {todo.task}{' '}
-                        {/* Pass the todo id to startEditTodo when clicking on the todo item */}
-                        <button onClick={(e) => { e.stopPropagation(); startEditTodo(todo.id); }}>Edit</button>
-                        <button onClick={(e) => { e.stopPropagation(); deleteTodo(todo.id); }}>Delete</button>
-                    </li>
+                    <TodoItem
+                        key={todo.id}
+                        todo={todo}
+                        toggleTodo={toggleTodo}
+                        startEditTodo={startEditTodo}
+                        deleteTodo={deleteTodo}
+                    />
                 ))}
             </ul>
         </div>
+    );
+}
+
+// Extracted TodoItem component
+function TodoItem({ todo, toggleTodo, startEditTodo, deleteTodo }) {
+    return (
+        <li onClick={() => toggleTodo(todo.id)} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+            {todo.task}
+            <button onClick={(e) => { e.stopPropagation(); startEditTodo(todo.id); }}>Edit</button>
+            <button onClick={(e) => { e.stopPropagation(); deleteTodo(todo.id); }}>Delete</button>
+        </li>
     );
 }
 
