@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import TodoItem from './TodoItem';
+import todoService from '../../services/todoService';
 
 function TodoApp() {
     const [todos, setTodos] = useState([]);
@@ -13,8 +14,8 @@ function TodoApp() {
 
     const fetchTodos = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/todos/');
-            setTodos(response.data);
+            const todosData = await todoService.getAllTodos();
+            setTodos(todosData);
         } catch (error) {
             console.error('Error fetching todos:', error);
         }
@@ -26,11 +27,11 @@ function TodoApp() {
 
     const addTodo = async () => {
         try {
-            const response = await axios.post('http://localhost:8080/api/todos/', {
+            const newTodoData = await todoService.addTodo({
                 task: newTodo,
                 completed: false,
             });
-            setTodos([...todos, response.data]);
+            setTodos([...todos, newTodoData]);
             setNewTodo('');
         } catch (error) {
             console.error('Error adding todo:', error);
@@ -47,7 +48,7 @@ function TodoApp() {
         setTodos(updatedTodos);
 
         try {
-            await axios.put(`http://localhost:8080/api/todos/${id}`, updatedTodos.find((todo) => todo.id === id));
+            await todoService.updateTodo(id, updatedTodos.find((todo) => todo.id === id));
         } catch (error) {
             console.error('Error updating todo:', error);
         }
@@ -55,7 +56,7 @@ function TodoApp() {
 
     const deleteTodo = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/todos/${id}`);
+            await todoService.deleteTodo(id);
             setTodos(todos.filter((todo) => todo.id !== id));
         } catch (error) {
             console.error('Error deleting todo:', error);
@@ -68,7 +69,7 @@ function TodoApp() {
 
     const updateTodo = async (id, updatedTask) => {
         try {
-            await axios.put(`http://localhost:8080/api/todos/${id}`, {
+            await todoService.updateTodo(id, {
                 task: updatedTask,
                 completed: false,
             });
@@ -121,17 +122,6 @@ function TodoApp() {
                 ))}
             </ul>
         </div>
-    );
-}
-
-// Extracted TodoItem component
-function TodoItem({ todo, toggleTodo, startEditTodo, deleteTodo }) {
-    return (
-        <li onClick={() => toggleTodo(todo.id)} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
-            {todo.task}
-            <button onClick={(e) => { e.stopPropagation(); startEditTodo(todo.id); }}>Edit</button>
-            <button onClick={(e) => { e.stopPropagation(); deleteTodo(todo.id); }}>Delete</button>
-        </li>
     );
 }
 
