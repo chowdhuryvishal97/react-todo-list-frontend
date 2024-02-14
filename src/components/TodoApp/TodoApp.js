@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TodoItem from './TodoItem';
 import todoService from '../../services/todoService';
+import './TodoApp.css';
 
 function TodoApp() {
     const [todos, setTodos] = useState([]);
@@ -96,21 +97,32 @@ function TodoApp() {
     };
 
     return (
-        <div>
-            <h1>Todo List</h1>
-            <div>
-                <input type="text" value={newTodo} onChange={handleInputChange} />
-                <button onClick={addTodo}>Add Todo</button>
+        <div className="todo-app">
+            <h1 className="title">Todo List</h1>
+            <div className="add-todo">
+                <input
+                    type="text"
+                    value={newTodo}
+                    onChange={handleInputChange}
+                    placeholder="Add a new todo..."
+                    className="input"
+                />
+                <button onClick={addTodo} className="add-btn">Add</button>
             </div>
-            <h1>Update Todo</h1>
-            <div>
-                <input type="text" placeholder="Enter updated todo" value={updatedTodo} onChange={handleUpdateInputChange} />
-                {editTodoId !== null && (
-                    <button onClick={() => updateTodo(editTodoId, updatedTodo)}>Update Todo</button>
-                )}
-            </div>
-
-            <ul>
+            <h1 className="title">Update Todo</h1>
+            {editTodoId !== null && (
+                <div className="update-todo">
+                    <input
+                        type="text"
+                        placeholder="Enter updated todo"
+                        value={updatedTodo}
+                        onChange={handleUpdateInputChange}
+                        className="input"
+                    />
+                    <button onClick={() => updateTodo(editTodoId, updatedTodo)} className="update-btn">Update</button>
+                </div>
+            )}
+            <ul className="todo-list">
                 {todos.map((todo) => (
                     <TodoItem
                         key={todo.id}
